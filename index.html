@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orgniz-it</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: {
+                            primary: '#0A0A0B',
+                            secondary: '#141416',
+                            tertiary: '#1C1C1F',
+                            hover: '#232328',
+                            active: '#2A2A30',
+                        },
+                        border: {
+                            subtle: 'rgba(255, 255, 255, 0.06)',
+                            default: 'rgba(255, 255, 255, 0.1)',
+                            strong: 'rgba(255, 255, 255, 0.15)',
+                        },
+                        text: {
+                            primary: '#FAFAFA',
+                            secondary: '#A1A1A6',
+                            tertiary: '#6B6B70',
+                            muted: '#4A4A4F',
+                        },
+                        accent: {
+                            blue: '#5E6AD2',
+                            purple: '#9F7AEA',
+                            green: '#3DCC79',
+                            orange: '#F59E0B',
+                            red: '#EF4444',
+                            cyan: '#22D3EE',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0A0A0B;
+            color: #FAFAFA;
+            font-family: 'DM Sans', sans-serif;
+        }
+        /* Hide scrollbar for cleaner UI but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "date-fns": "https://aistudiocdn.com/date-fns@^4.1.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
