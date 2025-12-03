@@ -22,12 +22,12 @@ import {
   Label,
   Textarea,
   Select,
-} from '@/src/components/ui';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useJobStore } from '@/src/stores/jobStore';
-import { useInterviewStore } from '@/src/stores/interviewStore';
-import { JOB_STATUS_COLORS, INTERVIEW_TYPE_LABELS } from '@/src/types';
-import type { Job, JobStatus, InterviewType } from '@/src/types';
+} from '@/components/ui';
+import { useAuthStore } from '@/stores/authStore';
+import { useJobStore } from '@/stores/jobStore';
+import { useInterviewStore } from '@/stores/interviewStore';
+import { JOB_STATUS_COLORS, INTERVIEW_TYPE_LABELS } from '@/types';
+import type { Job, JobStatus, InterviewType } from '@/types';
 import { Timestamp } from 'firebase/firestore';
 
 const TABS: { id: JobStatus | 'all'; label: string }[] = [

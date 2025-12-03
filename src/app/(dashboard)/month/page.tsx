@@ -12,11 +12,11 @@ import {
   isSameDay,
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Card, Button } from '@/src/components/ui';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { useInterviewStore } from '@/src/stores/interviewStore';
-import { useUIStore } from '@/src/stores/uiStore';
-import { formatDate } from '@/src/lib/utils';
+import { Card, Button } from '@/components/ui';
+import { useTaskStore } from '@/stores/taskStore';
+import { useInterviewStore } from '@/stores/interviewStore';
+import { useUIStore } from '@/stores/uiStore';
+import { formatDate } from '@/lib/utils';
 
 export default function MonthViewPage() {
   const { tasks } = useTaskStore();

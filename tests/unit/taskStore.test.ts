@@ -1,4 +1,4 @@
-import { useTaskStore } from '@/src/stores/taskStore';
+import { useTaskStore } from '@/stores/taskStore';
 
 // Mock Firebase Firestore
 jest.mock('firebase/firestore', () => ({

@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { formatDate } from '@/src/lib/utils';
+import { useAuthStore } from '@/stores/authStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { formatDate } from '@/lib/utils';
 
 export function useStreak() {
   const { user, updateStreak } = useAuthStore();

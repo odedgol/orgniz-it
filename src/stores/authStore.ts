@@ -6,8 +6,8 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, googleProvider } from '@/src/lib/firebase';
-import type { User, UserSettings, StreakData } from '@/src/types';
+import { auth, db, googleProvider } from '@/lib/firebase';
+import type { User, UserSettings, StreakData } from '@/types';
 
 interface AuthState {
   user: User | null;

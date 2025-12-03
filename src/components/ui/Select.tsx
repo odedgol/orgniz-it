@@ -1,7 +1,7 @@
 'use client';
 
 import React, { SelectHTMLAttributes, forwardRef } from 'react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   children: React.ReactNode;

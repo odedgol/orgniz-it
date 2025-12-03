@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUIStore } from '@/src/stores/uiStore';
+import { useUIStore } from '@/stores/uiStore';
 
 export function useKeyboardShortcuts() {
   const router = useRouter();

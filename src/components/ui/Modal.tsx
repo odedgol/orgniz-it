@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface ModalProps {
   isOpen: boolean;

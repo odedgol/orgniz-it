@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ViewType } from '@/src/types';
+import type { ViewType } from '@/types';
 
 interface UIState {
   currentView: ViewType;

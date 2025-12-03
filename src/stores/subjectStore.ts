@@ -11,8 +11,8 @@ import {
   doc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '@/src/lib/firebase';
-import type { Subject } from '@/src/types';
+import { db } from '@/lib/firebase';
+import type { Subject } from '@/types';
 
 interface SubjectState {
   subjects: Subject[];

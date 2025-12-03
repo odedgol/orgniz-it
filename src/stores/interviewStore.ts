@@ -11,8 +11,8 @@ import {
   doc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '@/src/lib/firebase';
-import type { Interview, InterviewType } from '@/src/types';
+import { db } from '@/lib/firebase';
+import type { Interview, InterviewType } from '@/types';
 
 interface InterviewState {
   interviews: Interview[];

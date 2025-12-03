@@ -1,4 +1,4 @@
-import { cn, formatDate, formatTime, getGreeting } from '@/src/lib/utils';
+import { cn, formatDate, formatTime, getGreeting } from '@/lib/utils';
 
 describe('utils', () => {
   describe('cn', () => {

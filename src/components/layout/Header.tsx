@@ -3,8 +3,8 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, Command } from 'lucide-react';
 import { format } from 'date-fns';
-import { Button } from '@/src/components/ui';
-import { useUIStore } from '@/src/stores/uiStore';
+import { Button } from '@/components/ui';
+import { useUIStore } from '@/stores/uiStore';
 
 interface HeaderProps {
   title: string;

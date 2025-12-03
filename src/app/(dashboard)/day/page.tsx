@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import { format, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { Card, Button, Badge, Modal, Input, Label, Select } from '@/src/components/ui';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { useSubjectStore } from '@/src/stores/subjectStore';
-import { useInterviewStore } from '@/src/stores/interviewStore';
-import { useJobStore } from '@/src/stores/jobStore';
-import { useUIStore } from '@/src/stores/uiStore';
-import { formatDate } from '@/src/lib/utils';
+import { Card, Button, Badge, Modal, Input, Label, Select } from '@/components/ui';
+import { useAuthStore } from '@/stores/authStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { useSubjectStore } from '@/stores/subjectStore';
+import { useInterviewStore } from '@/stores/interviewStore';
+import { useJobStore } from '@/stores/jobStore';
+import { useUIStore } from '@/stores/uiStore';
+import { formatDate } from '@/lib/utils';
 
 export default function DayViewPage() {
   const { user } = useAuthStore();

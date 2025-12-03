@@ -12,8 +12,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { db } from '@/src/lib/firebase';
-import type { Task } from '@/src/types';
+import { db } from '@/lib/firebase';
+import type { Task } from '@/types';
 
 interface TaskState {
   tasks: Task[];

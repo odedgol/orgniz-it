@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
-import { Card, Button, ProgressBar, Modal, Input, Label } from '@/src/components/ui';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useSubjectStore } from '@/src/stores/subjectStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { SUBJECT_COLORS } from '@/src/types';
-import type { Subject } from '@/src/types';
+import { Card, Button, ProgressBar, Modal, Input, Label } from '@/components/ui';
+import { useAuthStore } from '@/stores/authStore';
+import { useSubjectStore } from '@/stores/subjectStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { SUBJECT_COLORS } from '@/types';
+import type { Subject } from '@/types';
 
 export default function SubjectsPage() {
   const { user } = useAuthStore();

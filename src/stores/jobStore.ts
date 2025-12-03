@@ -11,8 +11,8 @@ import {
   doc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '@/src/lib/firebase';
-import type { Job, JobStatus } from '@/src/types';
+import { db } from '@/lib/firebase';
+import type { Job, JobStatus } from '@/types';
 
 interface JobState {
   jobs: Job[];

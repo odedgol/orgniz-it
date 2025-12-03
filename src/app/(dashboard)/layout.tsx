@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/src/stores/authStore';
-import { Sidebar } from '@/src/components/layout';
-import { useKeyboardShortcuts } from '@/src/hooks/useKeyboardShortcuts';
+import { useAuthStore } from '@/stores/authStore';
+import { Sidebar } from '@/components/layout';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export default function DashboardLayout({
   children,

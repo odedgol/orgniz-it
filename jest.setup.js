@@ -19,7 +19,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock Firebase
-jest.mock('@/src/lib/firebase', () => ({
+jest.mock('@/lib/firebase', () => ({
   auth: {},
   db: {},
   googleProvider: {},

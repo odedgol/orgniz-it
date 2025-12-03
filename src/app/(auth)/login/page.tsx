@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/src/stores/authStore';
-import { Button } from '@/src/components/ui';
+import { useAuthStore } from '@/stores/authStore';
+import { Button } from '@/components/ui';
 
 export default function LoginPage() {
   const router = useRouter();

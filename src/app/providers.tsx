@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { useSubjectStore } from '@/src/stores/subjectStore';
-import { useJobStore } from '@/src/stores/jobStore';
-import { useInterviewStore } from '@/src/stores/interviewStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { useSubjectStore } from '@/stores/subjectStore';
+import { useJobStore } from '@/stores/jobStore';
+import { useInterviewStore } from '@/stores/interviewStore';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const { initialize, user } = useAuthStore();

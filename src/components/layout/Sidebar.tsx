@@ -12,11 +12,11 @@ import {
   BarChart2,
   LogOut,
 } from 'lucide-react';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { useJobStore } from '@/src/stores/jobStore';
-import { ProgressBar } from '@/src/components/ui';
-import { formatDate } from '@/src/lib/utils';
+import { useAuthStore } from '@/stores/authStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { useJobStore } from '@/stores/jobStore';
+import { ProgressBar } from '@/components/ui';
+import { formatDate } from '@/lib/utils';
 
 interface NavItemProps {
   href: string;

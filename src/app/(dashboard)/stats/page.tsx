@@ -14,13 +14,13 @@ import {
   Pie,
 } from 'recharts';
 import { Flame, CheckCircle2, Briefcase, TrendingUp } from 'lucide-react';
-import { Card } from '@/src/components/ui';
-import { useAuthStore } from '@/src/stores/authStore';
-import { useTaskStore } from '@/src/stores/taskStore';
-import { useSubjectStore } from '@/src/stores/subjectStore';
-import { useJobStore } from '@/src/stores/jobStore';
-import { useStreak } from '@/src/hooks/useStreak';
-import { formatDate } from '@/src/lib/utils';
+import { Card } from '@/components/ui';
+import { useAuthStore } from '@/stores/authStore';
+import { useTaskStore } from '@/stores/taskStore';
+import { useSubjectStore } from '@/stores/subjectStore';
+import { useJobStore } from '@/stores/jobStore';
+import { useStreak } from '@/hooks/useStreak';
+import { formatDate } from '@/lib/utils';
 
 export default function StatsPage() {
   const { user } = useAuthStore();
