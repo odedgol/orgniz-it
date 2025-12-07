@@ -71,7 +71,7 @@ export const DayViewSchedule: React.FC<DayViewScheduleProps> = ({
             <button
               key={day.toString()}
               onClick={() => onSelectDate(day)}
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all w-[60px] border ${
+              className={`relative flex flex-col items-center justify-center w-[60px] h-[60px] rounded-xl transition-all border ${
                 isSelected
                   ? 'bg-accent-blue text-white border-accent-blue'
                   : 'bg-bg-secondary border-bg-active hover:bg-bg-tertiary'
@@ -80,10 +80,12 @@ export const DayViewSchedule: React.FC<DayViewScheduleProps> = ({
               <span className={`text-xs uppercase tracking-wider ${isSelected ? 'text-white/80' : 'text-text-tertiary'}`}>
                 {format(day, 'EEE')}
               </span>
-              <span className={`text-lg font-semibold mt-1 ${isSelected ? 'text-white' : ''}`}>
+              <span className={`text-lg font-semibold ${isSelected ? 'text-white' : ''}`}>
                 {format(day, 'd')}
               </span>
-              <div className={`w-1.5 h-1.5 rounded-full mt-1 ${isToday && !isSelected ? 'bg-accent-green' : 'bg-transparent'}`} />
+              {isToday && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-accent-green" />
+              )}
             </button>
           );
         })}
