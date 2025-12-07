@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { Flame, Briefcase, Calendar, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui';
@@ -16,7 +16,14 @@ import { formatDate, getGreeting } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-  const { tasks, addTask, toggleTask, deleteTask } = useTaskStore();
+  const { tasks, addTask, toggleTask, deleteTask, updateOverdueTasks, loading } = useTaskStore();
+
+  // Update overdue tasks to today when page loads
+  useEffect(() => {
+    if (!loading && tasks.length > 0) {
+      updateOverdueTasks();
+    }
+  }, [loading, updateOverdueTasks]);
   const { subjects } = useSubjectStore();
   const { jobs } = useJobStore();
   const { interviews } = useInterviewStore();

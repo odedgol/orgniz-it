@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { isSameDay } from 'date-fns';
 import { Modal, Input, Label, Select, Button } from '@/components/ui';
 import {
@@ -22,7 +22,14 @@ import { formatDate } from '@/lib/utils';
 
 export default function DayViewPage() {
   const { user } = useAuthStore();
-  const { tasks, addTask, toggleTask, updateTask } = useTaskStore();
+  const { tasks, addTask, toggleTask, updateTask, updateOverdueTasks, loading } = useTaskStore();
+
+  // Update overdue tasks to today when page loads
+  useEffect(() => {
+    if (!loading && tasks.length > 0) {
+      updateOverdueTasks();
+    }
+  }, [loading, updateOverdueTasks]);
   const { subjects } = useSubjectStore();
   const { interviews } = useInterviewStore();
   const { jobs } = useJobStore();

@@ -1,4 +1,4 @@
-import { cn, formatDate, formatTime, getGreeting } from '@/lib/utils';
+import { cn, formatDate, formatTime, getGreeting, getCurrentTimeSlot } from '@/lib/utils';
 
 describe('utils', () => {
   describe('cn', () => {
@@ -19,6 +19,38 @@ describe('utils', () => {
     it('should format date to YYYY-MM-DD', () => {
       const date = new Date('2025-12-03T12:00:00');
       expect(formatDate(date)).toBe('2025-12-03');
+    });
+
+    it('should use local timezone, not UTC', () => {
+      // Create a date at 11PM local time
+      const date = new Date();
+      date.setHours(23, 0, 0, 0);
+
+      const result = formatDate(date);
+      const [year, month, day] = result.split('-').map(Number);
+
+      // Should match local date, not next day (UTC issue)
+      expect(year).toBe(date.getFullYear());
+      expect(month).toBe(date.getMonth() + 1);
+      expect(day).toBe(date.getDate());
+    });
+
+    it('should pad single digit months and days', () => {
+      const date = new Date(2025, 0, 5); // January 5, 2025
+      expect(formatDate(date)).toBe('2025-01-05');
+    });
+  });
+
+  describe('getCurrentTimeSlot', () => {
+    it('should return current hour in HH:00 format', () => {
+      const result = getCurrentTimeSlot();
+      expect(result).toMatch(/^\d{2}:00$/);
+    });
+
+    it('should pad single digit hours', () => {
+      const result = getCurrentTimeSlot();
+      const [hours] = result.split(':');
+      expect(hours.length).toBe(2);
     });
   });
 
