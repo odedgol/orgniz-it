@@ -11,25 +11,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only on client side
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let googleProvider: GoogleAuthProvider | null = null;
+// Initialize Firebase only on client side to avoid build-time errors
+// All consuming code is in 'use client' components, so this is safe
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let googleProvider: GoogleAuthProvider;
 
-// Only initialize on client side (when window is defined)
 if (typeof window !== 'undefined') {
-  try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-    auth = getAuth(app);
-    db = getFirestore(app);
-    googleProvider = new GoogleAuthProvider();
-  } catch (error) {
-    console.error('Firebase initialization error:', error);
-  }
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  auth = getAuth(app);
+  db = getFirestore(app);
+  googleProvider = new GoogleAuthProvider();
 }
 
-// Export with type assertions - these will be null during SSR/build
-// but components using them are all 'use client' so they'll be initialized
-export { auth, db, googleProvider };
-export default app;
+// Export with type assertions - these are initialized client-side
+// and all consumers are client components
+export { app, auth, db, googleProvider };
+export default app!;
