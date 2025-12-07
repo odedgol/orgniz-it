@@ -96,8 +96,8 @@ export interface Interview {
   interviewer?: string;
   notes?: string;
   reminderSent: {
-    firstReminder: boolean;
-    secondReminder: boolean;
+    dayBefore: boolean;
+    hourBefore: boolean;
   };
   createdAt: Timestamp;
 }

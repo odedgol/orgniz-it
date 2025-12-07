@@ -67,8 +67,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       await addDoc(collection(db, 'interviews'), {
         ...interviewData,
         reminderSent: {
-          firstReminder: false,
-          secondReminder: false,
+          dayBefore: false,
+          hourBefore: false,
         },
         createdAt: serverTimestamp(),
       });
@@ -85,8 +85,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       const updatesToSave = { ...updates };
       if ('date' in updates || 'time' in updates) {
         updatesToSave.reminderSent = {
-          firstReminder: false,
-          secondReminder: false,
+          dayBefore: false,
+          hourBefore: false,
         };
       }
       await updateDoc(doc(db, 'interviews', interviewId), updatesToSave);
