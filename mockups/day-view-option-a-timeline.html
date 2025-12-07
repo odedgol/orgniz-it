@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day View Option A - Classic Timeline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .date-nav button {
+      background: transparent;
+      border: none;
+      color: #A1A1A6;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .date-nav button:hover {
+      background: rgba(255,255,255,0.1);
+      color: #FAFAFA;
+    }
+    .date-nav span {
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 200px;
+      text-align: center;
+    }
+    .btn {
+      background: #5E6AD2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #A1A1A6;
+    }
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #1C1C1F;
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .view-toggle button {
+      background: transparent;
+      border: none;
+      color: #6B6B70;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-toggle button.active {
+      background: #141416;
+      color: #FAFAFA;
+    }
+    .timeline-container {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .hour-row {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      min-height: 80px;
+    }
+    .hour-row:last-child {
+      border-bottom: none;
+    }
+    .hour-label {
+      width: 70px;
+      padding: 12px 8px;
+      text-align: right;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .hour-label span {
+      font-size: 12px;
+      color: #6B6B70;
+      font-weight: 500;
+    }
+    .hour-content {
+      flex: 1;
+      padding: 8px;
+      position: relative;
+    }
+    .hour-content:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .task-block {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border-left: 4px solid #5E6AD2;
+      background: rgba(94, 106, 210, 0.15);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .task-block.green {
+      border-left-color: #3DCC79;
+      background: rgba(61, 204, 121, 0.15);
+    }
+    .task-block.orange {
+      border-left-color: #F59E0B;
+      background: rgba(245, 158, 11, 0.15);
+    }
+    .task-block.completed {
+      opacity: 0.5;
+    }
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid #5E6AD2;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .checkbox.checked {
+      background: #3DCC79;
+      border-color: #3DCC79;
+    }
+    .checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .task-info {
+      flex: 1;
+    }
+    .task-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5E6AD2;
+      margin-bottom: 2px;
+    }
+    .task-block.green .task-title { color: #3DCC79; }
+    .task-block.orange .task-title { color: #F59E0B; }
+    .task-block.completed .task-title {
+      text-decoration: line-through;
+    }
+    .task-time {
+      font-size: 11px;
+      color: #6B6B70;
+    }
+    .interview-block {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border-left: 4px solid #EF4444;
+      background: rgba(239, 68, 68, 0.15);
+      margin-bottom: 6px;
+    }
+    .interview-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #EF4444;
+      margin-bottom: 2px;
+    }
+    .interview-time {
+      font-size: 11px;
+      color: #6B6B70;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option A: Classic Timeline (Current - Enhanced)</span>
+
+    <div class="header">
+      <h1>Day View</h1>
+      <div class="header-controls">
+        <div class="view-toggle">
+          <button class="active">📅 Timeline</button>
+          <button>📋 Agenda</button>
+          <button>📊 Schedule</button>
+        </div>
+        <div class="date-nav">
+          <button>←</button>
+          <span>Wednesday, December 3, 2025</span>
+          <button>→</button>
+        </div>
+        <button class="btn-ghost btn">Today</button>
+        <button class="btn">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="timeline-container">
+      <div class="hour-row">
+        <div class="hour-label"><span>8 AM</span></div>
+        <div class="hour-content"></div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>9 AM</span></div>
+        <div class="hour-content">
+          <div class="task-block completed">
+            <div class="checkbox checked"></div>
+            <div class="task-info">
+              <div class="task-title">Fix the window component</div>
+              <div class="task-time">9:00 AM - 10:00 AM • System Design</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>10 AM</span></div>
+        <div class="hour-content">
+          <div class="task-block green completed">
+            <div class="checkbox checked"></div>
+            <div class="task-info">
+              <div class="task-title">Review pull requests</div>
+              <div class="task-time">10:30 AM - 11:30 AM • Algorithms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>11 AM</span></div>
+        <div class="hour-content"></div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>12 PM</span></div>
+        <div class="hour-content"></div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>1 PM</span></div>
+        <div class="hour-content"></div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>2 PM</span></div>
+        <div class="hour-content">
+          <div class="task-block">
+            <div class="checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Write unit tests for auth</div>
+              <div class="task-time">2:00 PM - 3:30 PM • System Design</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>3 PM</span></div>
+        <div class="hour-content">
+          <div class="interview-block">
+            <div class="interview-title">🎤 Google - Technical Interview</div>
+            <div class="interview-time">3:00 PM • 60 min</div>
+          </div>
+        </div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>4 PM</span></div>
+        <div class="hour-content">
+          <div class="task-block orange">
+            <div class="checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Prepare for technical interview</div>
+              <div class="task-time">4:00 PM - 5:00 PM • Job Search</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hour-row">
+        <div class="hour-label"><span>5 PM</span></div>
+        <div class="hour-content"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

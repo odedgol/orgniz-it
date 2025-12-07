@@ -1,9 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { format, isSameDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { Card, Button, Badge, Modal, Input, Label, Select } from '@/components/ui';
+import { isSameDay } from 'date-fns';
+import { Modal, Input, Label, Select, Button } from '@/components/ui';
+import {
+  DayViewHeader,
+  DayViewTimeline,
+  DayViewAgenda,
+  DayViewSchedule,
+  DayViewKanban,
+  DayViewFocus,
+} from '@/components/features/DayView';
+import type { DayViewMode } from '@/components/features/DayView';
 import { useAuthStore } from '@/stores/authStore';
 import { useTaskStore } from '@/stores/taskStore';
 import { useSubjectStore } from '@/stores/subjectStore';
@@ -14,19 +22,19 @@ import { formatDate } from '@/lib/utils';
 
 export default function DayViewPage() {
   const { user } = useAuthStore();
-  const { tasks, addTask, updateTask } = useTaskStore();
+  const { tasks, addTask, toggleTask, updateTask } = useTaskStore();
   const { subjects } = useSubjectStore();
   const { interviews } = useInterviewStore();
   const { jobs } = useJobStore();
   const { selectedDate, navigateDate, setSelectedDate } = useUIStore();
 
+  const [viewMode, setViewMode] = useState<DayViewMode>('timeline');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskSubject, setNewTaskSubject] = useState('');
   const [newTaskStartTime, setNewTaskStartTime] = useState('09:00');
   const [newTaskEndTime, setNewTaskEndTime] = useState('10:00');
 
-  const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 7 AM to 8 PM
   const dateStr = formatDate(selectedDate);
 
   const dayTasks = tasks
@@ -42,22 +50,6 @@ export default function DayViewPage() {
     const interviewDate = i.date?.toDate?.() || new Date(i.date as any);
     return isSameDay(interviewDate, selectedDate);
   });
-
-  const formatHour = (hour: number) => {
-    if (hour > 12) return `${hour - 12} PM`;
-    if (hour === 12) return '12 PM';
-    return `${hour} AM`;
-  };
-
-  const getTasksForHour = (hour: number) => {
-    const hourStr = hour.toString().padStart(2, '0');
-    return dayTasks.filter((t) => t.startTime?.startsWith(hourStr));
-  };
-
-  const getInterviewsForHour = (hour: number) => {
-    const hourStr = hour.toString().padStart(2, '0');
-    return dayInterviews.filter((i) => i.time?.startsWith(hourStr));
-  };
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,118 +71,49 @@ export default function DayViewPage() {
     setIsModalOpen(false);
   };
 
-  // Current time indicator position
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const isToday = isSameDay(selectedDate, now);
-  const timeIndicatorPosition =
-    currentHour >= 7 && currentHour <= 20
-      ? ((currentHour - 7) * 80 + (currentMinute / 60) * 80)
-      : null;
+  const renderView = () => {
+    const commonProps = {
+      tasks: dayTasks,
+      subjects,
+      interviews: dayInterviews,
+      jobs,
+      onToggleTask: toggleTask,
+    };
+
+    switch (viewMode) {
+      case 'timeline':
+        return <DayViewTimeline {...commonProps} />;
+      case 'agenda':
+        return <DayViewAgenda {...commonProps} />;
+      case 'schedule':
+        return (
+          <DayViewSchedule
+            {...commonProps}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        );
+      case 'kanban':
+        return <DayViewKanban {...commonProps} onUpdateTask={updateTask} onAddTask={() => setIsModalOpen(true)} />;
+      case 'focus':
+        return <DayViewFocus {...commonProps} />;
+      default:
+        return <DayViewTimeline {...commonProps} />;
+    }
+  };
 
   return (
-    <div className="h-full flex flex-col space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Day View</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-bg-secondary border border-bg-active rounded-lg p-1">
-            <Button variant="ghost" size="sm" onClick={() => navigateDate('prev')}>
-              <ChevronLeft size={16} />
-            </Button>
-            <span className="text-sm font-medium px-2 min-w-[200px] text-center">
-              {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-            </span>
-            <Button variant="ghost" size="sm" onClick={() => navigateDate('next')}>
-              <ChevronRight size={16} />
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedDate(new Date())}
-          >
-            Today
-          </Button>
-          <Button size="sm" onClick={() => setIsModalOpen(true)}>
-            <Plus size={16} className="mr-2" /> Add Task
-          </Button>
-        </div>
-      </div>
+    <div className="h-full flex flex-col">
+      <DayViewHeader
+        selectedDate={selectedDate}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onNavigate={navigateDate}
+        onToday={() => setSelectedDate(new Date())}
+        onAddTask={() => setIsModalOpen(true)}
+      />
 
-      {/* Timeline */}
-      <div className="flex-1 overflow-y-auto rounded-xl border border-bg-active bg-bg-secondary relative">
-        {hours.map((hour) => {
-          const hourTasks = getTasksForHour(hour);
-          const hourInterviews = getInterviewsForHour(hour);
-
-          return (
-            <div
-              key={hour}
-              className="group flex border-b border-bg-active/50 min-h-[80px]"
-            >
-              <div className="w-16 py-3 px-2 border-r border-bg-active/50 text-right">
-                <span className="text-xs text-text-tertiary font-medium">
-                  {formatHour(hour)}
-                </span>
-              </div>
-              <div className="flex-1 relative p-2 group-hover:bg-bg-tertiary/30 transition-colors">
-                {/* Tasks */}
-                {hourTasks.map((task) => {
-                  const subject = subjects.find((s) => s.id === task.subjectId);
-                  return (
-                    <div
-                      key={task.id}
-                      className="mb-1 p-2 rounded text-xs border-l-4"
-                      style={{
-                        backgroundColor: `${subject?.color || '#5E6AD2'}20`,
-                        borderLeftColor: subject?.color || '#5E6AD2',
-                      }}
-                    >
-                      <span
-                        className="font-bold block"
-                        style={{ color: subject?.color || '#5E6AD2' }}
-                      >
-                        {task.title}
-                      </span>
-                      <span className="text-text-secondary">
-                        {task.startTime} - {task.endTime}
-                      </span>
-                    </div>
-                  );
-                })}
-
-                {/* Interviews */}
-                {hourInterviews.map((interview) => {
-                  const job = jobs.find((j) => j.id === interview.jobId);
-                  return (
-                    <div
-                      key={interview.id}
-                      className="mb-1 bg-accent-orange/20 border-l-4 border-accent-orange p-2 rounded text-xs"
-                    >
-                      <span className="text-accent-orange font-bold block">
-                        {job?.company} - {interview.type}
-                      </span>
-                      <span className="text-text-secondary">{interview.time}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Current Time Indicator */}
-        {isToday && timeIndicatorPosition !== null && (
-          <div
-            className="absolute left-16 right-0 border-t-2 border-accent-red z-10 flex items-center pointer-events-none"
-            style={{ top: `${timeIndicatorPosition}px` }}
-          >
-            <div className="w-3 h-3 rounded-full bg-accent-red -ml-1.5" />
-          </div>
-        )}
-      </div>
+      {renderView()}
 
       {/* Add Task Modal */}
       <Modal

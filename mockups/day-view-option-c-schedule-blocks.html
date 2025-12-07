@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day View Option C - Schedule Blocks</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #1C1C1F;
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .view-toggle button {
+      background: transparent;
+      border: none;
+      color: #6B6B70;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .view-toggle button.active {
+      background: #141416;
+      color: #FAFAFA;
+    }
+    .btn {
+      background: #5E6AD2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .date-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .date-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .date-header p {
+      color: #6B6B70;
+      font-size: 14px;
+    }
+    .day-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .day-btn {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-align: center;
+      cursor: pointer;
+      min-width: 60px;
+      transition: all 0.2s;
+    }
+    .day-btn:hover {
+      background: #1C1C1F;
+      border-color: rgba(255,255,255,0.15);
+    }
+    .day-btn.active {
+      background: #5E6AD2;
+      border-color: #5E6AD2;
+    }
+    .day-btn .day-name {
+      font-size: 11px;
+      color: #6B6B70;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .day-btn.active .day-name {
+      color: rgba(255,255,255,0.8);
+    }
+    .day-btn .day-num {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .day-btn.active .day-num {
+      color: white;
+    }
+    .day-btn .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #3DCC79;
+      margin: 6px auto 0;
+    }
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 0;
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .time-column {
+      background: #0F0F11;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .time-slot {
+      height: 60px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 8px 12px 0 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .time-slot span {
+      font-size: 11px;
+      color: #4A4A4F;
+      font-weight: 500;
+    }
+    .blocks-column {
+      position: relative;
+      min-height: 600px;
+    }
+    .hour-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.03);
+    }
+    .schedule-block {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+    .schedule-block:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .schedule-block.blue {
+      background: linear-gradient(135deg, #5E6AD2 0%, #4A54B8 100%);
+    }
+    .schedule-block.green {
+      background: linear-gradient(135deg, #3DCC79 0%, #2BA85E 100%);
+    }
+    .schedule-block.orange {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    }
+    .schedule-block.red {
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    }
+    .schedule-block.completed {
+      opacity: 0.5;
+    }
+    .block-time {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .block-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .schedule-block.completed .block-title {
+      text-decoration: line-through;
+    }
+    .block-subject {
+      font-size: 10px;
+      color: rgba(255,255,255,0.6);
+    }
+    .block-checkbox {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .block-checkbox.checked {
+      background: white;
+      border-color: white;
+    }
+    .block-checkbox.checked::after {
+      content: '✓';
+      color: #3DCC79;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .current-time-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #EF4444;
+      z-index: 10;
+    }
+    .current-time-line::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+    .free-slot {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4A4A4F;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .free-slot:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #6B6B70;
+      background: rgba(255,255,255,0.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option C: Schedule Blocks (Visual Calendar)</span>
+
+    <div class="header">
+      <h1>Schedule</h1>
+      <div class="header-controls">
+        <div class="view-toggle">
+          <button>📅 Timeline</button>
+          <button>📋 Agenda</button>
+          <button class="active">📊 Schedule</button>
+        </div>
+        <button class="btn">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="day-nav">
+      <div class="day-btn">
+        <div class="day-name">Mon</div>
+        <div class="day-num">1</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-name">Tue</div>
+        <div class="day-num">2</div>
+        <div class="dot"></div>
+      </div>
+      <div class="day-btn active">
+        <div class="day-name">Wed</div>
+        <div class="day-num">3</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-name">Thu</div>
+        <div class="day-num">4</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-name">Fri</div>
+        <div class="day-num">5</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-name">Sat</div>
+        <div class="day-num">6</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-name">Sun</div>
+        <div class="day-num">7</div>
+      </div>
+    </div>
+
+    <div class="date-header">
+      <h2>Wednesday, Dec 3</h2>
+      <p>5 tasks scheduled • 2 completed</p>
+    </div>
+
+    <div class="schedule-grid">
+      <div class="time-column">
+        <div class="time-slot"><span>8 AM</span></div>
+        <div class="time-slot"><span>9 AM</span></div>
+        <div class="time-slot"><span>10 AM</span></div>
+        <div class="time-slot"><span>11 AM</span></div>
+        <div class="time-slot"><span>12 PM</span></div>
+        <div class="time-slot"><span>1 PM</span></div>
+        <div class="time-slot"><span>2 PM</span></div>
+        <div class="time-slot"><span>3 PM</span></div>
+        <div class="time-slot"><span>4 PM</span></div>
+        <div class="time-slot"><span>5 PM</span></div>
+      </div>
+      <div class="blocks-column">
+        <!-- Hour lines -->
+        <div class="hour-line" style="top: 60px;"></div>
+        <div class="hour-line" style="top: 120px;"></div>
+        <div class="hour-line" style="top: 180px;"></div>
+        <div class="hour-line" style="top: 240px;"></div>
+        <div class="hour-line" style="top: 300px;"></div>
+        <div class="hour-line" style="top: 360px;"></div>
+        <div class="hour-line" style="top: 420px;"></div>
+        <div class="hour-line" style="top: 480px;"></div>
+        <div class="hour-line" style="top: 540px;"></div>
+
+        <!-- Tasks -->
+        <div class="schedule-block blue completed" style="top: 60px; height: 55px;">
+          <div class="block-checkbox checked"></div>
+          <div class="block-time">9:00 - 10:00</div>
+          <div class="block-title">Fix the window component</div>
+          <div class="block-subject">System Design</div>
+        </div>
+
+        <div class="schedule-block green completed" style="top: 150px; height: 55px;">
+          <div class="block-checkbox checked"></div>
+          <div class="block-time">10:30 - 11:30</div>
+          <div class="block-title">Review pull requests</div>
+          <div class="block-subject">Algorithms</div>
+        </div>
+
+        <!-- Free slot -->
+        <div class="free-slot" style="top: 240px; height: 115px;">
+          + Add task (12:00 - 2:00)
+        </div>
+
+        <div class="schedule-block blue" style="top: 360px; height: 85px;">
+          <div class="block-checkbox"></div>
+          <div class="block-time">2:00 - 3:30</div>
+          <div class="block-title">Write unit tests for auth</div>
+          <div class="block-subject">System Design</div>
+        </div>
+
+        <div class="schedule-block red" style="top: 420px; height: 55px;">
+          <div class="block-time">3:00 - 4:00</div>
+          <div class="block-title">🎤 Google Interview</div>
+          <div class="block-subject">Technical Round</div>
+        </div>
+
+        <div class="schedule-block orange" style="top: 480px; height: 55px;">
+          <div class="block-checkbox"></div>
+          <div class="block-time">4:00 - 5:00</div>
+          <div class="block-title">Prepare for interview</div>
+          <div class="block-subject">Job Search</div>
+        </div>
+
+        <!-- Current time indicator -->
+        <div class="current-time-line" style="top: 390px;"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

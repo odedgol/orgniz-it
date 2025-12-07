@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day View Option D - Kanban Time Slots</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .header-left h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .header-date {
+      font-size: 14px;
+      color: #A1A1A6;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #1C1C1F;
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .view-toggle button {
+      background: transparent;
+      border: none;
+      color: #6B6B70;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .view-toggle button.active {
+      background: #141416;
+      color: #FAFAFA;
+    }
+    .btn {
+      background: #5E6AD2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .kanban-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .time-column {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    .column-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .column-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .column-count {
+      font-size: 11px;
+      color: #6B6B70;
+      background: #1C1C1F;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .column-time {
+      font-size: 11px;
+      color: #6B6B70;
+    }
+    .column-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .task-card {
+      background: #1C1C1F;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: grab;
+      transition: all 0.2s;
+    }
+    .task-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .task-card.completed {
+      opacity: 0.5;
+    }
+    .task-card.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid #4A4A4F;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .checkbox.checked {
+      background: #3DCC79;
+      border-color: #3DCC79;
+    }
+    .checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .task-title {
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+    }
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: #6B6B70;
+    }
+    .task-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .task-badge.blue {
+      background: rgba(94, 106, 210, 0.2);
+      color: #5E6AD2;
+    }
+    .task-badge.green {
+      background: rgba(61, 204, 121, 0.2);
+      color: #3DCC79;
+    }
+    .task-badge.orange {
+      background: rgba(245, 158, 11, 0.2);
+      color: #F59E0B;
+    }
+    .task-badge.red {
+      background: rgba(239, 68, 68, 0.2);
+      color: #EF4444;
+    }
+    .task-time {
+      font-size: 11px;
+      color: #6B6B70;
+    }
+    .interview-card {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .interview-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .interview-icon {
+      font-size: 14px;
+    }
+    .interview-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #EF4444;
+    }
+    .interview-meta {
+      font-size: 11px;
+      color: #6B6B70;
+    }
+    .add-card {
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      color: #4A4A4F;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .add-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #6B6B70;
+      background: rgba(255,255,255,0.02);
+    }
+    .progress-bar {
+      height: 3px;
+      background: #2A2A30;
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+    .progress-fill.complete {
+      background: #3DCC79;
+    }
+    .progress-fill.partial {
+      background: #F59E0B;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: #4A4A4F;
+      font-size: 12px;
+    }
+    .column-header.morning { border-top: 3px solid #F59E0B; }
+    .column-header.midday { border-top: 3px solid #22D3EE; }
+    .column-header.afternoon { border-top: 3px solid #5E6AD2; }
+    .column-header.evening { border-top: 3px solid #9F7AEA; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option D: Kanban Time Slots (Drag & Drop)</span>
+
+    <div class="header">
+      <div class="header-left">
+        <h1>Wednesday, Dec 3</h1>
+        <div class="header-date">5 tasks • 2 completed • 1 interview</div>
+      </div>
+      <div class="header-controls">
+        <div class="view-toggle">
+          <button>📅 Timeline</button>
+          <button>📋 Agenda</button>
+          <button>📊 Schedule</button>
+          <button class="active">📌 Kanban</button>
+        </div>
+        <button class="btn">+ Add Task</button>
+      </div>
+    </div>
+
+    <div class="kanban-container">
+      <!-- Morning Column -->
+      <div class="time-column">
+        <div class="column-header morning">
+          <div>
+            <div class="column-title">🌅 Morning</div>
+            <div class="column-time">6:00 AM - 12:00 PM</div>
+          </div>
+          <span class="column-count">2 tasks</span>
+        </div>
+        <div class="column-body">
+          <div class="task-card completed">
+            <div class="task-header">
+              <div class="checkbox checked"></div>
+              <div class="task-title">Fix the window component</div>
+            </div>
+            <div class="task-meta">
+              <span class="task-badge blue">System Design</span>
+              <span class="task-time">9:00 - 10:00</span>
+            </div>
+          </div>
+
+          <div class="task-card completed">
+            <div class="task-header">
+              <div class="checkbox checked"></div>
+              <div class="task-title">Review pull requests</div>
+            </div>
+            <div class="task-meta">
+              <span class="task-badge green">Algorithms</span>
+              <span class="task-time">10:30 - 11:30</span>
+            </div>
+          </div>
+
+          <div class="add-card">+ Add morning task</div>
+        </div>
+        <div style="padding: 0 12px 12px;">
+          <div class="progress-bar">
+            <div class="progress-fill complete" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Midday Column -->
+      <div class="time-column">
+        <div class="column-header midday">
+          <div>
+            <div class="column-title">☀️ Midday</div>
+            <div class="column-time">12:00 PM - 3:00 PM</div>
+          </div>
+          <span class="column-count">1 task</span>
+        </div>
+        <div class="column-body">
+          <div class="task-card">
+            <div class="task-header">
+              <div class="checkbox"></div>
+              <div class="task-title">Write unit tests for auth</div>
+            </div>
+            <div class="task-meta">
+              <span class="task-badge blue">System Design</span>
+              <span class="task-time">2:00 - 3:30</span>
+            </div>
+          </div>
+
+          <div class="add-card">+ Add midday task</div>
+        </div>
+        <div style="padding: 0 12px 12px;">
+          <div class="progress-bar">
+            <div class="progress-fill partial" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Afternoon Column -->
+      <div class="time-column">
+        <div class="column-header afternoon">
+          <div>
+            <div class="column-title">🌤️ Afternoon</div>
+            <div class="column-time">3:00 PM - 6:00 PM</div>
+          </div>
+          <span class="column-count">2 items</span>
+        </div>
+        <div class="column-body">
+          <div class="interview-card">
+            <div class="interview-header">
+              <span class="interview-icon">🎤</span>
+              <span class="interview-title">Google Interview</span>
+            </div>
+            <div class="interview-meta">Technical Round • 3:00 - 4:00</div>
+          </div>
+
+          <div class="task-card">
+            <div class="task-header">
+              <div class="checkbox"></div>
+              <div class="task-title">Prepare for interview</div>
+            </div>
+            <div class="task-meta">
+              <span class="task-badge orange">Job Search</span>
+              <span class="task-time">4:00 - 5:00</span>
+            </div>
+          </div>
+
+          <div class="add-card">+ Add afternoon task</div>
+        </div>
+        <div style="padding: 0 12px 12px;">
+          <div class="progress-bar">
+            <div class="progress-fill partial" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evening Column -->
+      <div class="time-column">
+        <div class="column-header evening">
+          <div>
+            <div class="column-title">🌙 Evening</div>
+            <div class="column-time">6:00 PM - 12:00 AM</div>
+          </div>
+          <span class="column-count">0 tasks</span>
+        </div>
+        <div class="column-body">
+          <div class="empty-state">
+            No tasks scheduled<br>for the evening
+          </div>
+          <div class="add-card">+ Add evening task</div>
+        </div>
+        <div style="padding: 0 12px 12px;">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

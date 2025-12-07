@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option A - Card Based Tasks</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-text {
+      font-size: 13px;
+      color: #A1A1A6;
+    }
+    .progress-bar {
+      width: 80px;
+      height: 6px;
+      background: #2A2A30;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #3DCC79;
+      border-radius: 3px;
+      width: 60%;
+    }
+    .add-btn {
+      background: #5E6AD2;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .task-card {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .task-card:hover {
+      background: #1C1C1F;
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .task-card.completed {
+      opacity: 0.6;
+    }
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid #4A4A4F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .checkbox:hover {
+      border-color: #A1A1A6;
+    }
+    .checkbox.checked {
+      background: #3DCC79;
+      border-color: #3DCC79;
+    }
+    .checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .task-content {
+      flex: 1;
+    }
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: #6B6B70;
+    }
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(94, 106, 210, 0.2);
+      color: #5E6AD2;
+    }
+    .badge.green {
+      background: rgba(61, 204, 121, 0.2);
+      color: #3DCC79;
+    }
+    .badge.orange {
+      background: rgba(245, 158, 11, 0.2);
+      color: #F59E0B;
+    }
+    .task-time {
+      font-size: 13px;
+      color: #6B6B70;
+      margin-left: auto;
+    }
+    .delete-btn {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: #6B6B70;
+      cursor: pointer;
+      padding: 4px;
+      transition: all 0.2s;
+    }
+    .task-card:hover .delete-btn {
+      opacity: 1;
+    }
+    .delete-btn:hover {
+      color: #EF4444;
+    }
+    .add-task-card {
+      background: transparent;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6B6B70;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .add-task-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #A1A1A6;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option A: Card-Based (Modern/Spacious)</span>
+
+    <div class="header">
+      <div>
+        <h1>Today's Focus</h1>
+        <div class="progress-wrapper" style="margin-top: 8px;">
+          <span class="progress-text">3 of 5 completed</span>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+      <button class="add-btn">+ Add Task</button>
+    </div>
+
+    <div class="task-list">
+      <div class="task-card completed">
+        <div class="checkbox checked"></div>
+        <div class="task-content">
+          <div class="task-title">Fix the window component</div>
+          <div class="task-meta">
+            <span class="badge">System Design</span>
+          </div>
+        </div>
+        <span class="task-time">09:00</span>
+        <button class="delete-btn">✕</button>
+      </div>
+
+      <div class="task-card completed">
+        <div class="checkbox checked"></div>
+        <div class="task-content">
+          <div class="task-title">Review pull requests</div>
+          <div class="task-meta">
+            <span class="badge green">Algorithms</span>
+          </div>
+        </div>
+        <span class="task-time">10:30</span>
+        <button class="delete-btn">✕</button>
+      </div>
+
+      <div class="task-card completed">
+        <div class="checkbox checked"></div>
+        <div class="task-content">
+          <div class="task-title">Write unit tests for auth</div>
+          <div class="task-meta">
+            <span class="badge">System Design</span>
+          </div>
+        </div>
+        <span class="task-time">14:00</span>
+        <button class="delete-btn">✕</button>
+      </div>
+
+      <div class="task-card">
+        <div class="checkbox"></div>
+        <div class="task-content">
+          <div class="task-title">Prepare for technical interview</div>
+          <div class="task-meta">
+            <span class="badge orange">Job Search</span>
+          </div>
+        </div>
+        <span class="task-time">16:00</span>
+        <button class="delete-btn">✕</button>
+      </div>
+
+      <div class="task-card">
+        <div class="checkbox"></div>
+        <div class="task-content">
+          <div class="task-title">Study system design patterns</div>
+          <div class="task-meta">
+            <span class="badge">System Design</span>
+          </div>
+        </div>
+        <span class="task-time">18:00</span>
+        <button class="delete-btn">✕</button>
+      </div>
+
+      <div class="add-task-card">
+        <span style="font-size: 18px;">+</span>
+        <span>Add a new task...</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option C - Timeline Tasks</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .header {
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .subheader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .date {
+      color: #A1A1A6;
+      font-size: 13px;
+    }
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3DCC79;
+    }
+    .progress-text {
+      font-size: 13px;
+      color: #A1A1A6;
+    }
+    .progress-bar {
+      width: 60px;
+      height: 4px;
+      background: #2A2A30;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #3DCC79;
+      border-radius: 2px;
+      width: 60%;
+    }
+    .timeline {
+      position: relative;
+      padding-left: 80px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 52px;
+      top: 0;
+      bottom: 60px;
+      width: 2px;
+      background: rgba(255,255,255,0.1);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .time-label {
+      position: absolute;
+      left: -80px;
+      top: 12px;
+      font-size: 12px;
+      color: #6B6B70;
+      font-family: monospace;
+      width: 50px;
+      text-align: right;
+    }
+    .time-dot {
+      position: absolute;
+      left: -28px;
+      top: 14px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2A2A30;
+      border: 2px solid #141416;
+    }
+    .time-dot.completed {
+      background: #3DCC79;
+    }
+    .time-dot.current {
+      background: #EF4444;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    }
+    .task-card {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .task-card:hover {
+      background: #1C1C1F;
+      border-color: rgba(255,255,255,0.15);
+    }
+    .task-card.completed {
+      opacity: 0.5;
+    }
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #4A4A4F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .checkbox.checked {
+      background: #3DCC79;
+      border-color: #3DCC79;
+    }
+    .checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .task-content {
+      flex: 1;
+    }
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: #6B6B70;
+    }
+    .task-subject {
+      font-size: 12px;
+      color: #6B6B70;
+      margin-top: 2px;
+    }
+    .delete-btn {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: #6B6B70;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .task-card:hover .delete-btn {
+      opacity: 1;
+    }
+    .delete-btn:hover {
+      color: #EF4444;
+    }
+    .add-card {
+      background: transparent;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #4A4A4F;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .add-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #6B6B70;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option C: Timeline-Inspired (Time-Focused)</span>
+
+    <div class="header">
+      <h1>Today's Focus</h1>
+    </div>
+    <div class="subheader">
+      <span class="date">Wednesday, December 3, 2025</span>
+      <div class="progress-wrapper">
+        <div class="progress-dot"></div>
+        <span class="progress-text">3/5 tasks</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <span class="time-label">09:00</span>
+        <div class="time-dot completed"></div>
+        <div class="task-card completed">
+          <div class="checkbox checked"></div>
+          <div class="task-content">
+            <div class="task-title">Fix the window component</div>
+            <div class="task-subject">System Design</div>
+          </div>
+          <button class="delete-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <span class="time-label">10:30</span>
+        <div class="time-dot completed"></div>
+        <div class="task-card completed">
+          <div class="checkbox checked"></div>
+          <div class="task-content">
+            <div class="task-title">Review pull requests</div>
+            <div class="task-subject">Algorithms</div>
+          </div>
+          <button class="delete-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <span class="time-label">14:00</span>
+        <div class="time-dot completed"></div>
+        <div class="task-card completed">
+          <div class="checkbox checked"></div>
+          <div class="task-content">
+            <div class="task-title">Write unit tests for auth</div>
+            <div class="task-subject">System Design</div>
+          </div>
+          <button class="delete-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <span class="time-label">16:00</span>
+        <div class="time-dot current"></div>
+        <div class="task-card">
+          <div class="checkbox"></div>
+          <div class="task-content">
+            <div class="task-title">Prepare for technical interview</div>
+            <div class="task-subject">Job Search</div>
+          </div>
+          <button class="delete-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <span class="time-label">18:00</span>
+        <div class="time-dot"></div>
+        <div class="task-card">
+          <div class="checkbox"></div>
+          <div class="task-content">
+            <div class="task-title">Study system design patterns</div>
+            <div class="task-subject">Learning</div>
+          </div>
+          <button class="delete-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <span class="time-label"></span>
+        <div class="add-card">
+          <span>+ Add task...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

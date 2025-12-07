@@ -12,6 +12,7 @@ import {
   Edit2,
   Trash2,
   Clock,
+  X,
 } from 'lucide-react';
 import {
   Card,
@@ -42,13 +43,14 @@ const TABS: { id: JobStatus | 'all'; label: string }[] = [
 export default function JobsPage() {
   const { user } = useAuthStore();
   const { jobs, addJob, updateJob, deleteJob } = useJobStore();
-  const { interviews, addInterview, deleteInterview } = useInterviewStore();
+  const { interviews, addInterview, updateInterview, deleteInterview } = useInterviewStore();
 
   const [filter, setFilter] = useState<JobStatus | 'all'>('all');
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [selectedJobForInterview, setSelectedJobForInterview] = useState<Job | null>(null);
+  const [editingInterviewId, setEditingInterviewId] = useState<string | null>(null);
 
   // Job form state
   const [company, setCompany] = useState('');
@@ -97,6 +99,7 @@ export default function JobsPage() {
 
   const openInterviewModal = (job: Job) => {
     setSelectedJobForInterview(job);
+    setEditingInterviewId(null);
     setInterviewDate('');
     setInterviewTime('10:00');
     setInterviewType('phone');
@@ -105,29 +108,55 @@ export default function JobsPage() {
     setIsInterviewModalOpen(true);
   };
 
+  const openEditInterviewModal = (job: Job, interviewId: string) => {
+    const interview = interviews.find((i) => i.id === interviewId);
+    if (!interview) return;
+
+    setSelectedJobForInterview(job);
+    setEditingInterviewId(interviewId);
+    // Handle date - could be string or Timestamp
+    const dateValue = typeof interview.date === 'string'
+      ? interview.date
+      : interview.date?.toDate?.()?.toISOString().split('T')[0] || '';
+    setInterviewDate(dateValue);
+    setInterviewTime(interview.time);
+    setInterviewType(interview.type);
+    setInterviewer(interview.interviewer || '');
+    setInterviewNotes(interview.notes || '');
+    setIsInterviewModalOpen(true);
+  };
+
+  const handleDeleteInterview = async (interviewId: string) => {
+    if (confirm('Are you sure you want to delete this interview?')) {
+      await deleteInterview(interviewId);
+    }
+  };
+
   const handleSaveJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    const jobData = {
+    const jobData: Record<string, any> = {
       company,
       title,
       status,
-      location: location || undefined,
-      salaryMin: salaryMin ? Number(salaryMin) : undefined,
-      salaryMax: salaryMax ? Number(salaryMax) : undefined,
-      url: url || undefined,
-      notes: notes || undefined,
     };
+
+    // Only add optional fields if they have values
+    if (location) jobData.location = location;
+    if (salaryMin) jobData.salaryMin = Number(salaryMin);
+    if (salaryMax) jobData.salaryMax = Number(salaryMax);
+    if (url) jobData.url = url;
+    if (notes) jobData.notes = notes;
 
     if (editingJob) {
       await updateJob(editingJob.id, jobData);
     } else {
-      await addJob({
-        ...jobData,
-        userId: user.id,
-        appliedDate: status !== 'wishlist' ? Timestamp.now() : undefined,
-      });
+      jobData.userId = user.id;
+      if (status !== 'wishlist') {
+        jobData.appliedDate = Timestamp.now();
+      }
+      await addJob(jobData as any);
     }
     setIsJobModalOpen(false);
   };
@@ -136,19 +165,30 @@ export default function JobsPage() {
     e.preventDefault();
     if (!user || !selectedJobForInterview) return;
 
-    await addInterview({
-      userId: user.id,
-      jobId: selectedJobForInterview.id,
-      date: Timestamp.fromDate(new Date(interviewDate)),
+    const interviewData: Record<string, any> = {
+      date: interviewDate, // Store as string YYYY-MM-DD for simpler sorting
       time: interviewTime,
       type: interviewType,
-      interviewer: interviewer || undefined,
-      notes: interviewNotes || undefined,
-    });
+    };
 
-    // Update job status to interview if not already
-    if (selectedJobForInterview.status !== 'interview' && selectedJobForInterview.status !== 'offer') {
-      await updateJob(selectedJobForInterview.id, { status: 'interview' });
+    if (interviewer) interviewData.interviewer = interviewer;
+    else interviewData.interviewer = null;
+    if (interviewNotes) interviewData.notes = interviewNotes;
+    else interviewData.notes = null;
+
+    if (editingInterviewId) {
+      // Update existing interview
+      await updateInterview(editingInterviewId, interviewData);
+    } else {
+      // Add new interview
+      interviewData.userId = user.id;
+      interviewData.jobId = selectedJobForInterview.id;
+      await addInterview(interviewData as any);
+
+      // Update job status to interview if not already
+      if (selectedJobForInterview.status !== 'interview' && selectedJobForInterview.status !== 'offer') {
+        await updateJob(selectedJobForInterview.id, { status: 'interview' });
+      }
     }
 
     setIsInterviewModalOpen(false);
@@ -170,14 +210,14 @@ export default function JobsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary">Job Applications</h1>
-          <p className="text-text-secondary mt-1">Pipeline management for your career</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-text-primary">Job Applications</h1>
+          <p className="text-text-secondary text-sm md:text-base mt-1">Pipeline management for your career</p>
         </div>
-        <Button onClick={openAddJobModal}>
+        <Button onClick={openAddJobModal} className="w-full sm:w-auto">
           <Plus size={16} className="mr-2" /> Track Job
         </Button>
       </div>
@@ -215,30 +255,39 @@ export default function JobsPage() {
             return (
               <Card
                 key={job.id}
-                className="hover:border-accent-blue/30 transition-all group relative pl-6 overflow-hidden"
+                className="hover:border-accent-blue/30 transition-all group relative pl-4 md:pl-6 overflow-hidden"
               >
                 {/* Status Strip */}
                 <div
-                  className="absolute left-0 top-0 bottom-0 w-1.5"
+                  className="absolute left-0 top-0 bottom-0 w-1 md:w-1.5"
                   style={{ backgroundColor: JOB_STATUS_COLORS[job.status] }}
                 />
 
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
-                      {job.company}
-                      {job.url && (
-                        <a href={job.url} target="_blank" rel="noreferrer">
-                          <ExternalLink
-                            size={14}
-                            className="text-text-muted hover:text-accent-blue cursor-pointer"
-                          />
-                        </a>
-                      )}
-                    </h3>
-                    <p className="text-text-secondary font-medium">{job.title}</p>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex items-start justify-between sm:justify-start gap-2">
+                      <h3 className="text-base md:text-lg font-bold text-text-primary flex items-center gap-2 flex-wrap">
+                        {job.company}
+                        {job.url && (
+                          <a href={job.url} target="_blank" rel="noreferrer">
+                            <ExternalLink
+                              size={14}
+                              className="text-text-muted hover:text-accent-blue cursor-pointer"
+                            />
+                          </a>
+                        )}
+                      </h3>
+                      {/* Mobile badge */}
+                      <Badge
+                        color={JOB_STATUS_COLORS[job.status]}
+                        className="uppercase tracking-wider sm:hidden text-[10px]"
+                      >
+                        {job.status}
+                      </Badge>
+                    </div>
+                    <p className="text-sm md:text-base text-text-secondary font-medium">{job.title}</p>
 
-                    <div className="flex items-center gap-4 text-xs text-text-tertiary mt-3">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-text-tertiary mt-2 md:mt-3">
                       {job.location && (
                         <span className="flex items-center gap-1">
                           <MapPin size={12} /> {job.location}
@@ -271,28 +320,48 @@ export default function JobsPage() {
                       <div className="mt-3 pt-3 border-t border-bg-active">
                         <p className="text-xs text-text-secondary mb-2">Scheduled Interviews:</p>
                         <div className="flex flex-wrap gap-2">
-                          {jobInterviews.map((interview) => (
-                            <span
-                              key={interview.id}
-                              className="text-xs bg-accent-orange/10 text-accent-orange px-2 py-1 rounded flex items-center gap-1"
-                            >
-                              <Clock size={10} />
-                              {format(
-                                interview.date?.toDate?.() || new Date(interview.date as any),
-                                'MMM d'
-                              )}{' '}
-                              {interview.time} - {INTERVIEW_TYPE_LABELS[interview.type]}
-                            </span>
-                          ))}
+                          {jobInterviews.map((interview) => {
+                            // Handle date - could be string or Timestamp
+                            const dateStr = typeof interview.date === 'string'
+                              ? interview.date
+                              : interview.date?.toDate?.()?.toISOString().split('T')[0] || '';
+                            return (
+                              <div
+                                key={interview.id}
+                                className="group/interview text-xs bg-accent-orange/10 text-accent-orange px-2 py-1 rounded flex items-center gap-1"
+                              >
+                                <Clock size={10} />
+                                <span>
+                                  {dateStr && format(new Date(dateStr + 'T00:00:00'), 'MMM d')}{' '}
+                                  {interview.time} - {INTERVIEW_TYPE_LABELS[interview.type]}
+                                </span>
+                                <button
+                                  onClick={() => openEditInterviewModal(job, interview.id)}
+                                  className="ml-1 p-0.5 hover:bg-accent-orange/20 rounded opacity-100 sm:opacity-0 sm:group-hover/interview:opacity-100 transition-opacity"
+                                  title="Edit Interview"
+                                >
+                                  <Edit2 size={10} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteInterview(interview.id)}
+                                  className="p-0.5 hover:bg-accent-red/20 text-accent-red rounded opacity-100 sm:opacity-0 sm:group-hover/interview:opacity-100 transition-opacity"
+                                  title="Delete Interview"
+                                >
+                                  <X size={10} />
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col items-end gap-3">
+                  <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-3 sm:flex-shrink-0">
+                    {/* Desktop badge */}
                     <Badge
                       color={JOB_STATUS_COLORS[job.status]}
-                      className="uppercase tracking-wider"
+                      className="uppercase tracking-wider hidden sm:flex"
                     >
                       {job.status}
                     </Badge>
@@ -444,7 +513,7 @@ export default function JobsPage() {
       <Modal
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
-        title={`Schedule Interview - ${selectedJobForInterview?.company}`}
+        title={editingInterviewId ? `Edit Interview - ${selectedJobForInterview?.company}` : `Schedule Interview - ${selectedJobForInterview?.company}`}
       >
         <form onSubmit={handleSaveInterview} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -514,7 +583,7 @@ export default function JobsPage() {
             >
               Cancel
             </Button>
-            <Button type="submit">Schedule Interview</Button>
+            <Button type="submit">{editingInterviewId ? 'Save Changes' : 'Schedule Interview'}</Button>
           </div>
         </form>
       </Modal>

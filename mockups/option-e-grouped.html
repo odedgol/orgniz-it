@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option E - Grouped by Subject</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0A0A0B;
+      color: #FAFAFA;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-left h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress-text {
+      font-size: 13px;
+      color: #A1A1A6;
+    }
+    .progress-bar {
+      width: 80px;
+      height: 4px;
+      background: #2A2A30;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #3DCC79;
+      border-radius: 2px;
+      width: 60%;
+    }
+    .add-btn {
+      background: #5E6AD2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .subject-group {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .subject-group:last-of-type {
+      border-bottom: none;
+    }
+    .subject-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .subject-header:hover {
+      background: rgba(0,0,0,0.3);
+    }
+    .subject-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .subject-dot.blue { background: #5E6AD2; }
+    .subject-dot.green { background: #3DCC79; }
+    .subject-dot.orange { background: #F59E0B; }
+    .subject-dot.purple { background: #9F7AEA; }
+    .subject-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: #FAFAFA;
+    }
+    .subject-count {
+      font-size: 12px;
+      color: #6B6B70;
+    }
+    .chevron {
+      color: #4A4A4F;
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    .subject-group.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+    .task-tree {
+      padding-left: 20px;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px 12px 16px;
+      border-left: 2px solid rgba(255,255,255,0.08);
+      margin-left: 4px;
+      position: relative;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .task-item:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .task-item::before {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 50%;
+      width: 12px;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+    }
+    .task-item:last-child {
+      border-left-color: transparent;
+    }
+    .task-item:last-child::after {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 0;
+      bottom: 50%;
+      width: 2px;
+      background: rgba(255,255,255,0.08);
+    }
+    .task-item.completed {
+      opacity: 0.5;
+    }
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid #4A4A4F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .checkbox.checked {
+      background: #3DCC79;
+      border-color: #3DCC79;
+    }
+    .checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .task-title {
+      flex: 1;
+      font-size: 14px;
+    }
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: #6B6B70;
+    }
+    .task-time {
+      font-size: 12px;
+      color: #6B6B70;
+      font-family: monospace;
+    }
+    .delete-btn {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: #4A4A4F;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .task-item:hover .delete-btn {
+      opacity: 1;
+    }
+    .delete-btn:hover {
+      color: #EF4444;
+    }
+    .add-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.15);
+    }
+    .add-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #FAFAFA;
+      font-size: 14px;
+      outline: none;
+    }
+    .add-input::placeholder {
+      color: #4A4A4F;
+    }
+    .select-subject {
+      background: #1C1C1F;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      color: #A1A1A6;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .label {
+      display: inline-block;
+      background: #1C1C1F;
+      color: #A1A1A6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="label">Option E: Grouped by Subject (Organized)</span>
+
+    <div class="card">
+      <div class="header">
+        <div class="header-left">
+          <h1>Today's Focus</h1>
+          <div class="progress-wrapper">
+            <span class="progress-text">3 of 5 completed</span>
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+        <button class="add-btn">+ Add Task</button>
+      </div>
+
+      <div class="subject-group">
+        <div class="subject-header">
+          <span class="subject-dot blue"></span>
+          <span class="subject-name">System Design</span>
+          <span class="subject-count">2 tasks</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="task-tree">
+          <div class="task-item completed">
+            <div class="checkbox checked"></div>
+            <span class="task-title">Fix the window component</span>
+            <span class="task-time">09:00</span>
+            <button class="delete-btn">✕</button>
+          </div>
+          <div class="task-item completed">
+            <div class="checkbox checked"></div>
+            <span class="task-title">Write unit tests for auth</span>
+            <span class="task-time">14:00</span>
+            <button class="delete-btn">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subject-group">
+        <div class="subject-header">
+          <span class="subject-dot green"></span>
+          <span class="subject-name">Algorithms</span>
+          <span class="subject-count">1 task</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="task-tree">
+          <div class="task-item completed">
+            <div class="checkbox checked"></div>
+            <span class="task-title">Review pull requests</span>
+            <span class="task-time">10:30</span>
+            <button class="delete-btn">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subject-group">
+        <div class="subject-header">
+          <span class="subject-dot orange"></span>
+          <span class="subject-name">Job Search</span>
+          <span class="subject-count">1 task</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="task-tree">
+          <div class="task-item">
+            <div class="checkbox"></div>
+            <span class="task-title">Prepare for technical interview</span>
+            <span class="task-time">16:00</span>
+            <button class="delete-btn">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subject-group">
+        <div class="subject-header">
+          <span class="subject-dot purple"></span>
+          <span class="subject-name">Learning</span>
+          <span class="subject-count">1 task</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="task-tree">
+          <div class="task-item">
+            <div class="checkbox"></div>
+            <span class="task-title">Study system design patterns</span>
+            <span class="task-time">18:00</span>
+            <button class="delete-btn">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-row">
+        <span style="color: #4A4A4F;">+</span>
+        <input type="text" class="add-input" placeholder="Type task...">
+        <select class="select-subject">
+          <option>Select Subject</option>
+          <option>System Design</option>
+          <option>Algorithms</option>
+          <option>Job Search</option>
+          <option>Learning</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

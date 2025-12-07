@@ -14,6 +14,13 @@ export interface UserSettings {
   dailyReminderTime: string; // "09:00"
   weekStartsOn: 'sunday' | 'monday';
   theme: 'dark' | 'light' | 'system';
+  notifications: NotificationSettings;
+}
+
+export interface NotificationSettings {
+  enabled: boolean;
+  firstReminderHours: number; // Hours before interview (default: 24)
+  secondReminderHours: number; // Hours before interview (default: 1)
 }
 
 export interface StreakData {
@@ -89,8 +96,8 @@ export interface Interview {
   interviewer?: string;
   notes?: string;
   reminderSent: {
-    dayBefore: boolean;
-    hourBefore: boolean;
+    firstReminder: boolean;
+    secondReminder: boolean;
   };
   createdAt: Timestamp;
 }

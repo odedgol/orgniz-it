@@ -19,7 +19,7 @@ export default function SubjectsPage() {
 
   // Form state
   const [name, setName] = useState('');
-  const [color, setColor] = useState(SUBJECT_COLORS[0].value);
+  const [color, setColor] = useState<string>(SUBJECT_COLORS[0].value);
   const [goal, setGoal] = useState(5);
   const [topics, setTopics] = useState('');
 
@@ -91,30 +91,30 @@ export default function SubjectsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary">Subjects</h1>
-          <p className="text-text-secondary mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-text-primary">Subjects</h1>
+          <p className="text-text-secondary text-sm md:text-base mt-1">
             Track your learning goals and progress
           </p>
         </div>
-        <Button onClick={openAddModal}>
+        <Button onClick={openAddModal} className="w-full sm:w-auto">
           <Plus size={16} className="mr-2" /> New Subject
         </Button>
       </div>
 
       {/* Subject Grid */}
       {subjects.length === 0 ? (
-        <Card className="p-12 text-center">
+        <Card className="p-8 md:p-12 text-center">
           <p className="text-text-tertiary mb-4">No subjects yet. Create one to get started!</p>
           <Button onClick={openAddModal}>
             <Plus size={16} className="mr-2" /> Create Subject
           </Button>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
           {subjects.map((subject) => {
             const weeklyProgress = getWeeklyProgress(subject.id);
 
@@ -123,13 +123,13 @@ export default function SubjectsPage() {
                 key={subject.id}
                 className="group hover:border-accent-blue/50 transition-colors relative"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: subject.color }}
                     />
-                    <h3 className="text-lg font-bold">{subject.name}</h3>
+                    <h3 className="text-base md:text-lg font-bold">{subject.name}</h3>
                   </div>
                   <div className="flex gap-1">
                     <button
@@ -149,7 +149,7 @@ export default function SubjectsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   <div>
                     <div className="flex justify-between text-xs mb-2">
                       <span className="text-text-secondary">Weekly Goal</span>
@@ -165,11 +165,11 @@ export default function SubjectsPage() {
                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 md:gap-2">
                     {subject.topics.map((topic) => (
                       <span
                         key={topic}
-                        className="px-2 py-1 rounded bg-bg-tertiary text-text-secondary text-xs border border-bg-active"
+                        className="px-1.5 md:px-2 py-0.5 md:py-1 rounded bg-bg-tertiary text-text-secondary text-xs border border-bg-active"
                       >
                         {topic}
                       </span>

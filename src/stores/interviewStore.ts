@@ -67,8 +67,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       await addDoc(collection(db, 'interviews'), {
         ...interviewData,
         reminderSent: {
-          dayBefore: false,
-          hourBefore: false,
+          firstReminder: false,
+          secondReminder: false,
         },
         createdAt: serverTimestamp(),
       });
@@ -80,7 +80,16 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   updateInterview: async (interviewId, updates) => {
     try {
-      await updateDoc(doc(db, 'interviews', interviewId), updates);
+      // If date or time is being changed, reset the reminder flags
+      // so notifications can be sent for the new time
+      const updatesToSave = { ...updates };
+      if ('date' in updates || 'time' in updates) {
+        updatesToSave.reminderSent = {
+          firstReminder: false,
+          secondReminder: false,
+        };
+      }
+      await updateDoc(doc(db, 'interviews', interviewId), updatesToSave);
     } catch (error: any) {
       console.error('Error updating interview:', error);
       set({ error: error.message });
