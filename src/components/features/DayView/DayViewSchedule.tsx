@@ -83,9 +83,7 @@ export const DayViewSchedule: React.FC<DayViewScheduleProps> = ({
               <span className={`text-lg font-semibold mt-1 ${isSelected ? 'text-white' : ''}`}>
                 {format(day, 'd')}
               </span>
-              {isToday && !isSelected && (
-                <div className="w-1.5 h-1.5 rounded-full bg-accent-green mt-1" />
-              )}
+              <div className={`w-1.5 h-1.5 rounded-full mt-1 ${isToday && !isSelected ? 'bg-accent-green' : 'bg-transparent'}`} />
             </button>
           );
         })}
