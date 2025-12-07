@@ -71,10 +71,10 @@ export const DayViewSchedule: React.FC<DayViewScheduleProps> = ({
             <button
               key={day.toString()}
               onClick={() => onSelectDate(day)}
-              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all min-w-[60px] ${
+              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-all w-[60px] border ${
                 isSelected
-                  ? 'bg-accent-blue text-white'
-                  : 'bg-bg-secondary border border-bg-active hover:bg-bg-tertiary'
+                  ? 'bg-accent-blue text-white border-accent-blue'
+                  : 'bg-bg-secondary border-bg-active hover:bg-bg-tertiary'
               }`}
             >
               <span className={`text-xs uppercase tracking-wider ${isSelected ? 'text-white/80' : 'text-text-tertiary'}`}>
