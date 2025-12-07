@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   format,
   startOfMonth,
@@ -21,7 +21,12 @@ import { formatDate } from '@/lib/utils';
 export default function MonthViewPage() {
   const { tasks } = useTaskStore();
   const { interviews } = useInterviewStore();
-  const { selectedDate, navigateDate, setSelectedDate } = useUIStore();
+  const { selectedDate, navigateDate, setSelectedDate, setCurrentView } = useUIStore();
+
+  // Set current view to 'month' so navigation works correctly
+  useEffect(() => {
+    setCurrentView('month');
+  }, [setCurrentView]);
 
   const today = new Date();
   const monthStart = startOfMonth(selectedDate);

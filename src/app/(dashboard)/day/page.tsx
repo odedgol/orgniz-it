@@ -23,6 +23,15 @@ import { formatDate } from '@/lib/utils';
 export default function DayViewPage() {
   const { user } = useAuthStore();
   const { tasks, addTask, toggleTask, updateTask, updateOverdueTasks, loading } = useTaskStore();
+  const { subjects } = useSubjectStore();
+  const { interviews } = useInterviewStore();
+  const { jobs } = useJobStore();
+  const { selectedDate, navigateDate, setSelectedDate, setCurrentView } = useUIStore();
+
+  // Set current view to 'day' so navigation works correctly
+  useEffect(() => {
+    setCurrentView('day');
+  }, [setCurrentView]);
 
   // Update overdue tasks to today when page loads
   useEffect(() => {
@@ -30,10 +39,6 @@ export default function DayViewPage() {
       updateOverdueTasks();
     }
   }, [loading, updateOverdueTasks]);
-  const { subjects } = useSubjectStore();
-  const { interviews } = useInterviewStore();
-  const { jobs } = useJobStore();
-  const { selectedDate, navigateDate, setSelectedDate } = useUIStore();
 
   const [viewMode, setViewMode] = useState<DayViewMode>('timeline');
   const [isModalOpen, setIsModalOpen] = useState(false);
