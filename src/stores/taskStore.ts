@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Task } from '@/types';
+import { formatDate, getCurrentTimeSlot } from '@/lib/utils';
 
 interface TaskState {
   tasks: Task[];
@@ -21,11 +22,12 @@ interface TaskState {
   error: string | null;
   unsubscribe: (() => void) | null;
   subscribe: (userId: string) => void;
-  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'order'>) => Promise<void>;
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'order' | 'originalDate'>) => Promise<void>;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   toggleTask: (taskId: string) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
   reorderTasks: (tasks: Task[]) => Promise<void>;
+  updateOverdueTasks: () => Promise<void>;
   cleanup: () => void;
 }
 
@@ -74,6 +76,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     try {
       await addDoc(collection(db, 'tasks'), {
         ...taskData,
+        originalDate: taskData.date, // Store original date for stats/streaks
         completed: false,
         order: maxOrder + 1,
         createdAt: serverTimestamp(),
@@ -135,6 +138,35 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       await batch.commit();
     } catch (error: any) {
       console.error('Error reordering tasks:', error);
+      set({ error: error.message });
+    }
+  },
+
+  updateOverdueTasks: async () => {
+    const { tasks } = get();
+    const today = formatDate(new Date());
+    const currentTimeSlot = getCurrentTimeSlot();
+
+    // Find incomplete tasks that are from a previous day
+    const overdueTasks = tasks.filter(
+      (task) => !task.completed && task.date < today
+    );
+
+    if (overdueTasks.length === 0) return;
+
+    try {
+      const batch = writeBatch(db);
+      overdueTasks.forEach((task) => {
+        batch.update(doc(db, 'tasks', task.id), {
+          date: today,
+          startTime: currentTimeSlot,
+          // originalDate remains unchanged - it's the original creation date
+          updatedAt: serverTimestamp(),
+        });
+      });
+      await batch.commit();
+    } catch (error: any) {
+      console.error('Error updating overdue tasks:', error);
       set({ error: error.message });
     }
   },

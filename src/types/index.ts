@@ -47,7 +47,8 @@ export interface Task {
   userId: string;
   subjectId: string;
   title: string;
-  date: string; // "2025-12-03"
+  date: string; // "2025-12-03" - Current display date (moves with time for sticky tasks)
+  originalDate: string; // "2025-12-03" - Original creation date (for stats/streaks, never changes)
   completed: boolean;
   completedAt?: Timestamp;
   order: number; // For drag-to-reorder

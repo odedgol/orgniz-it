@@ -6,7 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function getCurrentTimeSlot(): string {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  return `${hours}:00`;
 }
 
 export function formatTime(time: string): string {
